@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { config } from 'dotenv';
+import { CartsModule } from './carts/carts.module';
+import { ProductsModule } from './products/products.module';
 
 config();
 
@@ -16,6 +18,8 @@ config();
       autoLoadEntities: true,
       synchronize: true,
     }),
+    CartsModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [],
