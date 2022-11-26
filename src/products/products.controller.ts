@@ -12,6 +12,7 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from './entities/product.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -23,7 +24,7 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<Product[]> {
     try {
       return await this.productsService.findAll();
     } catch (error) {
@@ -35,8 +36,22 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Product> {
+    try {
+      return await this.productsService.findOne(+id);
+    } catch (error) {
+      if (error.code === '404') {
+        throw new HttpException(
+          { message: error.detail },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      throw new HttpException(
+        { message: error.detail },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Patch(':id')

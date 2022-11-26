@@ -11,6 +11,7 @@ export class ProductsService {
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
   ) {}
+
   create(createProductDto: CreateProductDto) {
     return 'This action adds a new product';
   }
@@ -29,8 +30,24 @@ export class ProductsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number): Promise<Product> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const found = await this.productsRepository.findOne({ where: { id } });
+        if (!found) {
+          reject({
+            code: '404',
+            detail: 'Product not found',
+          });
+        }
+        resolve(found);
+      } catch (error) {
+        reject({
+          code: error.code,
+          detail: error.detail,
+        });
+      }
+    });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
