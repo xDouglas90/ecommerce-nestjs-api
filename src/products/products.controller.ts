@@ -55,7 +55,9 @@ export class ProductsController {
   }
 
   @Get(':category')
-  async findByCategory(@Param('category') category: string) {
+  async findByCategory(
+    @Param('category') category: string,
+  ): Promise<Product[]> {
     try {
       return await this.productsService.findByCategory(category);
     } catch (error) {

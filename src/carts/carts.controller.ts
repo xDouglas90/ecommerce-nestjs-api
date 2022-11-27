@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { CartsService } from './carts.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { Cart } from './entities/cart.entity';
 
 @Controller('carts')
 export class CartsController {
@@ -18,8 +29,22 @@ export class CartsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartsService.findOne(+id);
+  async findOneById(@Param('id') id: string): Promise<Cart> {
+    try {
+      return await this.cartsService.findOne(+id);
+    } catch (error) {
+      if (error.code === HttpStatus.NOT_FOUND) {
+        throw new HttpException(
+          { message: error.detail },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      throw new HttpException(
+        { message: error.detail },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Patch(':id')

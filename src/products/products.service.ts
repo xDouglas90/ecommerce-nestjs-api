@@ -51,7 +51,7 @@ export class ProductsService {
     });
   }
 
-  async findByCategory(category: string) {
+  async findByCategory(category: string): Promise<Product[]> {
     return new Promise(async (resolve, reject) => {
       try {
         if (!Object.values(ProductCategory).includes(category)) {
