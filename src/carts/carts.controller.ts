@@ -9,6 +9,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
+import { Product } from 'src/products/entities/product.entity';
 import { CartsService } from './carts.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
@@ -47,9 +48,23 @@ export class CartsController {
     }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartsService.update(+id, updateCartDto);
+  @Patch(':id/products')
+  updateProducts(@Param('id') id: string, @Body() product: Product) {
+    try {
+      return this.cartsService.updateProducts(+id, product);
+    } catch (error) {
+      if (error.code === HttpStatus.NOT_FOUND) {
+        throw new HttpException(
+          { message: error.detail },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      throw new HttpException(
+        { message: error.detail },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Delete(':id')
