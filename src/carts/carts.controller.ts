@@ -49,7 +49,10 @@ export class CartsController {
   }
 
   @Patch(':id/products')
-  updateProducts(@Param('id') id: string, @Body() product: Product) {
+  updateProducts(
+    @Param('id') id: string,
+    @Body() product: Product,
+  ): Promise<Cart> {
     try {
       return this.cartsService.updateProducts(+id, product);
     } catch (error) {
@@ -70,5 +73,27 @@ export class CartsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.cartsService.remove(+id);
+  }
+
+  @Delete(':id/products/:productId')
+  removeProduct(
+    @Param('id') id: string,
+    @Param('productId') productId: string,
+  ) {
+    try {
+      return this.cartsService.removeProduct(+id, +productId);
+    } catch (error) {
+      if (error.code === HttpStatus.NOT_FOUND) {
+        throw new HttpException(
+          { message: error.detail },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      throw new HttpException(
+        { message: error.detail },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
