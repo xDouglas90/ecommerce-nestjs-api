@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
+import { ProductCategory } from './utils/product-category.enum';
 
 @Injectable()
 export class ProductsService {
@@ -30,16 +31,40 @@ export class ProductsService {
     });
   }
 
-  async findOne(id: number): Promise<Product> {
+  async findOneById(id: number): Promise<Product> {
     return new Promise(async (resolve, reject) => {
       try {
         const found = await this.productsRepository.findOne({ where: { id } });
         if (!found) {
           reject({
-            code: '404',
+            code: HttpStatus.NOT_FOUND,
             detail: 'Product not found',
           });
         }
+        resolve(found);
+      } catch (error) {
+        reject({
+          code: error.code,
+          detail: error.detail,
+        });
+      }
+    });
+  }
+
+  async findByCategory(category: string) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!Object.values(ProductCategory).includes(category)) {
+          reject({
+            code: HttpStatus.BAD_REQUEST,
+            detail: 'Invalid category',
+          });
+        }
+
+        const found = await this.productsRepository.find({
+          where: { categoryId: parseInt(ProductCategory[category]) },
+        });
+
         resolve(found);
       } catch (error) {
         reject({

@@ -36,14 +36,33 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Product> {
+  async findOneById(@Param('id') id: string): Promise<Product> {
     try {
-      return await this.productsService.findOne(+id);
+      return await this.productsService.findOneById(+id);
     } catch (error) {
-      if (error.code === '404') {
+      if (error.code === HttpStatus.NOT_FOUND) {
         throw new HttpException(
           { message: error.detail },
           HttpStatus.NOT_FOUND,
+        );
+      }
+
+      throw new HttpException(
+        { message: error.detail },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get(':category')
+  async findByCategory(@Param('category') category: string) {
+    try {
+      return await this.productsService.findByCategory(category);
+    } catch (error) {
+      if (error.code === HttpStatus.BAD_REQUEST) {
+        throw new HttpException(
+          { message: error.detail },
+          HttpStatus.BAD_REQUEST,
         );
       }
 
